@@ -1,9 +1,9 @@
 plugin.tx_relax_pi1{
 	couch{
-		host = http://ingop.couchone.com
+		host = http://xxxxx.couchone.com
 		port = 5984
-		User = admin
-		Pass = edlich
+		User = 
+		Pass = 
 	}
 	defaultFields = titel, strasse, plz, ort, telefon
 	_CSS_DEFAULT_STYLE{
