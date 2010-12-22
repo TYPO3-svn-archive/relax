@@ -2,6 +2,9 @@
 	* Added possibility to configure the Databasename via TypoScript
 	* Using TYPO3 functions to instantiate Classes
 	* Dummy Class to pass all Attributes to
+	* Check if DB exists
+	* Output Changes
+	* #11639 Read from the couch
 
 2010-12-20 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
 	* Writing to CouchDB

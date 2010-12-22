@@ -94,18 +94,37 @@ class tx_relax_pi1 extends tslib_pibase {
 			$content .= $this->addToCouch($gp);
 		}
 
+		//Get all DBs and load into an Array
 		$this->couches = $this->getAvailableDBs();
 
-		//$content = $this->readCouch();
+		//Comparing defined DB with available
+		$this->compareAvailableSelected();
 
+
+		//Add the HTML Form to Content
 		$content .= $this->addForm();
+
+		$content .= $this->readCouch();
 
 		return $this->pi_wrapInBaseClass($content);
 	}
 
+	/**
+	 * Get all Document IDs from our DB
+	 * @return <type>
+	 */
 	private function readCouch() {
 
-		return $this->couch->getAllDocs()->rows[0]->id;
+		$documents = $this->couch->getAllDocs();
+
+		$c = '<ul>';
+		foreach ($documents->rows as $document) {
+
+			$c .= '<li>' . $document->id . '</li>';
+		}
+		$c .='</ul>';
+
+		return $c;
 	}
 
 	/**
@@ -232,6 +251,18 @@ class tx_relax_pi1 extends tslib_pibase {
 
 		$databases = $this->couch->listDatabases();
 		return $databases;
+	}
+
+	/**
+	 * Check if the configured DB is in the list of availables
+	 * @return boolean
+	 */
+	private function compareAvailableSelected() {
+		if (in_array($this->couchDB, $this->couches)) {
+			return true;
+		} else {
+			throw new Exception("Selected Database not available", 900843510546, $previous);
+		}
 	}
 
 }
