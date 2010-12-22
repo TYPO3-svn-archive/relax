@@ -1,3 +1,8 @@
+2010-12-22 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
+	* Added possibility to configure the Databasename via TypoScript
+	* Using TYPO3 functions to instantiate Classes
+	* Dummy Class to pass all Attributes to
+
 2010-12-20 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
 	* Writing to CouchDB
 	* Defining default fields for a special purpose (May be changed via TypoScript)

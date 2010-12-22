@@ -3,7 +3,8 @@ plugin.tx_relax_pi1{
 		host = http://xxxxx.couchone.com
 		port = 5984
 		User = 
-		Pass = 
+		Pass =
+		dbName = 
 	}
 	defaultFields = titel, strasse, plz, ort, telefon
 	_CSS_DEFAULT_STYLE(

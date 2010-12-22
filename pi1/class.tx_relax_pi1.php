@@ -28,6 +28,7 @@
  * Hint: use extdeveval to insert/update function index above.
  */
 require_once(PATH_tslib . 'class.tslib_pibase.php');
+require_once(PATH_typo3conf . '/ext/relax/lib/Document.php');
 require_once(PATH_typo3conf . '/ext/relax/lib/couch.php');
 require_once(PATH_typo3conf . '/ext/relax/lib/couchClient.php');
 require_once(PATH_typo3conf . '/ext/relax/lib/couchDocument.php');
@@ -43,7 +44,7 @@ class tx_relax_pi1 extends tslib_pibase {
 
 	var $prefixId = 'tx_relax_pi1';  // Same as class name
 	var $scriptRelPath = 'pi1/class.tx_relax_pi1.php'; // Path to this script relative to the extension dir.
-	var $extKey = 'relax'; // The extension key.
+	var $extKey = 'relax';
 	var $pi_checkCHash = false;
 	/**
 	 * Couch Options
@@ -51,6 +52,7 @@ class tx_relax_pi1 extends tslib_pibase {
 	private $couchDsn;
 	private $couch;
 	private $defaultFields;
+	private $couchDB;
 	/**
 	 *
 	 * Avalable Databses
@@ -74,21 +76,36 @@ class tx_relax_pi1 extends tslib_pibase {
 		//get default fields From TYPO3 Conf
 		$this->defaultFields = $this->getDefaultFields($conf['defaultFields']);
 
+		//Database selected via TypoScript
+		$this->couchDB = $conf['couch.']['dbName'];
+
+		//Compute DSN
 		$this->couchDsn = $conf['couch.']['host'] . ':' . $conf['couch.']['port'] . '/';
 
+		//Start Connection to CouchDB Server
 		$this->couch = $this->initDB();
+
+		//check if we have some parameters
 		if (t3lib_div::_GP('tx-relax-pi1')) {
 			$gp = t3lib_div::_GP('tx-relax-pi1');
 
 			$gp = $this->optimiereFelder($gp);
 
-			$this->addToCouch($gp);
+			$content .= $this->addToCouch($gp);
 		}
+
 		$this->couches = $this->getAvailableDBs();
+
+		//$content = $this->readCouch();
 
 		$content .= $this->addForm();
 
 		return $this->pi_wrapInBaseClass($content);
+	}
+
+	private function readCouch() {
+
+		return $this->couch->getAllDocs()->rows[0]->id;
 	}
 
 	/**
@@ -129,21 +146,27 @@ class tx_relax_pi1 extends tslib_pibase {
 	}
 
 	/**
-	 *
 	 * Add Data to Your couchDB Server
+	 * @return string Message from CouchDB Server
 	 */
 	private function addToCouch($daten) {
 
-		$doc = new couchDocument($this->couch);
+		//Instantiate Dummy Document
+		$doc = t3lib_div::makeInstance('tx_relax_lib_Document');
 
-		$doc->set($daten);
-
-		try {
-
-			$this->couch->storeDoc($daten);
-		} catch (Exception $e) {
-
+		//Pass all attributes to the document
+		foreach ($daten as $key => $val) {
+			$doc->$key = $val;
 		}
+
+		//and try to store this document to our CouchDB
+		try {
+			$nachricht = $this->couch->storeDoc($doc);
+		} catch (Exception $e) {
+			$nachricht = $e->getTraceAsString();
+		}
+
+		return $nachricht;
 	}
 
 	/**
@@ -151,7 +174,14 @@ class tx_relax_pi1 extends tslib_pibase {
 	 * @return couchClient
 	 */
 	private function initDB() {
-		return new couchClient($this->couchDsn, 'relax');
+
+		$db = t3lib_div::makeInstance('couchClient', $this->couchDsn, $this->couchDB);
+
+		if ($db) {
+			return $db;
+		} else {
+			throw new Exception('Connection to CouchDB failed ...', 4151351342344);
+		}
 	}
 
 	/**
@@ -199,9 +229,9 @@ class tx_relax_pi1 extends tslib_pibase {
 	 * Show all Databases in your Couch Instance
 	 */
 	private function getAvailableDBs() {
-		$database = $this->couch->listDatabases();
 
-		return $database;
+		$databases = $this->couch->listDatabases();
+		return $databases;
 	}
 
 }
