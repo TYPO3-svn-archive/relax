@@ -6,7 +6,7 @@ plugin.tx_relax_pi1{
 		Pass = 
 	}
 	defaultFields = titel, strasse, plz, ort, telefon
-	_CSS_DEFAULT_STYLE{
+	_CSS_DEFAULT_STYLE(
 		.tx-relax-pi1 label{
 		width: 162px;
 		float:left;
@@ -22,5 +22,5 @@ plugin.tx_relax_pi1{
 		font-size: 20px;
 		font-weight:bold;
 		}
-	}
+	)
 }

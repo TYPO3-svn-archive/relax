@@ -1,8 +1,9 @@
 <?php
-/***************************************************************
+
+/* * *************************************************************
  *  Copyright notice
  *
- *  (c) 2010 Ingo Pfennigstorf <ingo.pfennigstorf@fh-brandenburg.de>
+ *  (c) 2010 Ingo Pfennigstorf <ingo.pfennigstorf@gmail.com>
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -20,19 +21,16 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  * Hint: use extdeveval to insert/update function index above.
  */
-
-require_once(PATH_tslib.'class.tslib_pibase.php');
-require_once(PATH_typo3conf.'/ext/relax/lib/couch.php');
-require_once(PATH_typo3conf.'/ext/relax/lib/couchClient.php');
-require_once(PATH_typo3conf.'/ext/relax/lib/couchDocument.php');
-
-
+require_once(PATH_tslib . 'class.tslib_pibase.php');
+require_once(PATH_typo3conf . '/ext/relax/lib/couch.php');
+require_once(PATH_typo3conf . '/ext/relax/lib/couchClient.php');
+require_once(PATH_typo3conf . '/ext/relax/lib/couchDocument.php');
 
 /**
  * Plugin 'Relax and take it easy' for the 'relax' extension.
@@ -42,20 +40,17 @@ require_once(PATH_typo3conf.'/ext/relax/lib/couchDocument.php');
  * @subpackage	tx_relax
  */
 class tx_relax_pi1 extends tslib_pibase {
-	var $prefixId      = 'tx_relax_pi1';		// Same as class name
-	var $scriptRelPath = 'pi1/class.tx_relax_pi1.php';	// Path to this script relative to the extension dir.
-	var $extKey        = 'relax';	// The extension key.
-	var $pi_checkCHash = false;
 
+	var $prefixId = 'tx_relax_pi1';  // Same as class name
+	var $scriptRelPath = 'pi1/class.tx_relax_pi1.php'; // Path to this script relative to the extension dir.
+	var $extKey = 'relax'; // The extension key.
+	var $pi_checkCHash = false;
 	/**
-	 * Optionen fuer die Couch
+	 * Couch Options
 	 */
 	private $couchDsn;
-
 	private $couch;
-
 	private $defaultFields;
-
 	/**
 	 *
 	 * Avalable Databses
@@ -79,18 +74,15 @@ class tx_relax_pi1 extends tslib_pibase {
 		//get default fields From TYPO3 Conf
 		$this->defaultFields = $this->getDefaultFields($conf['defaultFields']);
 
+		$this->couchDsn = $conf['couch.']['host'] . ':' . $conf['couch.']['port'] . '/';
 
-		$this->couchDsn = $conf['couch.']['host'].':'.$conf['couch.']['port'].'/';
-
-
-
-		if(t3lib_div::_GP('tx-standorte-pi1')){
-			$gp = t3lib_div::_GP('tx-standorte-pi1');
+		$this->couch = $this->initDB();
+		if (t3lib_div::_GP('tx-relax-pi1')) {
+			$gp = t3lib_div::_GP('tx-relax-pi1');
 
 			$gp = $this->optimiereFelder($gp);
 
 			$this->addToCouch($gp);
-
 		}
 		$this->couches = $this->getAvailableDBs();
 
@@ -105,18 +97,17 @@ class tx_relax_pi1 extends tslib_pibase {
 	 * @param array $gp
 	 * @return array
 	 */
-	private function optimiereFelder($gp){
+	private function optimiereFelder($gp) {
 		$data = array();
 
-		foreach ($gp as $key=>$value){
+		foreach ($gp as $key => $value) {
 
-			if (is_array($value)){
+			if (is_array($value)) {
 				$key = $value['fieldname'];
 				$value = $value['fieldvalue'];
 			}
 
 			$data[$key] = $value;
-
 		}
 		return $data;
 	}
@@ -126,25 +117,23 @@ class tx_relax_pi1 extends tslib_pibase {
 	 * Get default Fields From TypoScript
 	 * @param string $felder
 	 */
-	private function getDefaultFields($felder){
-		$defaultFelder = explode(',',$felder);
+	private function getDefaultFields($felder) {
+		$defaultFelder = explode(',', $felder);
 
 		$fields = array();
-		foreach ($defaultFelder as $feld){
+		foreach ($defaultFelder as $feld) {
 			$fields[] = trim($feld);
-
 		}
 
 		return $fields;
-
 	}
 
 	/**
 	 *
 	 * Add Data to Your couchDB Server
 	 */
-	private function addToCouch($daten){
-		$this->couch = $this->initDB();
+	private function addToCouch($daten) {
+
 		$doc = new couchDocument($this->couch);
 
 		$doc->set($daten);
@@ -152,41 +141,45 @@ class tx_relax_pi1 extends tslib_pibase {
 		try {
 
 			$this->couch->storeDoc($daten);
-		}
-		catch (Exception $e){
-				
+		} catch (Exception $e) {
+
 		}
 	}
 
-	private function initDB(){
-		return new couchClient($this->couchDsn,'standorte');
-
+	/**
+	 * Initializing Connection
+	 * @return couchClient
+	 */
+	private function initDB() {
+		return new couchClient($this->couchDsn, 'relax');
 	}
 
 	/**
 	 * Yeah
 	 * Generating the Form
+	 * @TODO Extract to Template
+	 * @TODO Deliver Javascript
 	 */
-	private function addForm(){
+	private function addForm() {
 		$html .= '
 		
-		<form name="couchfields" action="'.$this->pi_getPageLink($GLOBALS['TSFE']->id).'" method="post">';
-		foreach ($this->defaultFields as $field){
+		<form name="couchfields" action="' . $this->pi_getPageLink($GLOBALS['TSFE']->id) . '" method="post">';
+		foreach ($this->defaultFields as $field) {
 
 
 			$html .= '
-			<label for="tx-standorte-pi1-'.$field.'">'.ucfirst($field).'</label>
-			<input type="text" name="tx-standorte-pi1['.$field.']" id="tx-standorte-pi1-'.$field.'" />
+			<label for="tx-relax-pi1-' . $field . '">' . ucfirst($field) . '</label>
+			<input type="text" name="tx-relax-pi1[' . $field . ']" id="tx-relax-pi1-' . $field . '" />
 				<br />';
 		}
-		$tempField =$this->getRandomFieldName();
+		$tempField = $this->getRandomFieldName();
 		$html .= '
 		
-			<input type="text" name="tx-standorte-pi1['.$tempField.'][fieldname]" id="tx-standorte-pi1-'.$tempField.'[label]" />
-			<input type="text" name="tx-standorte-pi1['.$tempField.'][fieldvalue]" id="tx-standorte-pi1-'.$tempField.'[value]" />
+			<input type="text" name="tx-relax-pi1[' . $tempField . '][fieldname]" id="tx-relax-pi1-' . $tempField . '[label]" />
+			<input type="text" name="tx-relax-pi1[' . $tempField . '][fieldvalue]" id="tx-relax-pi1-' . $tempField . '[value]" />
 			<div class="addmore">+</div>
 			<br />
-			<input type="submit" name="tx-standorte-pi1[add]" value="add" />
+			<input type="submit" name="tx-relax-pi1[add]" value="add" />
 			
 		</form>
 		';
@@ -194,17 +187,18 @@ class tx_relax_pi1 extends tslib_pibase {
 		return $html;
 	}
 
-	private function getRandomFieldName(){
+	/**
+	 * Generates a random String
+	 * @return string Random String
+	 */
+	private function getRandomFieldName() {
 		return t3lib_div::shortMD5(time());
 	}
 
-
 	/**
 	 * Show all Databases in your Couch Instance
-	 * Enter description here ...
 	 */
-	private function getAvailableDBs(){
-		$this->couch = $this->initDB();
+	private function getAvailableDBs() {
 		$database = $this->couch->listDatabases();
 
 		return $database;
@@ -212,10 +206,7 @@ class tx_relax_pi1 extends tslib_pibase {
 
 }
 
-
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/relax/pi1/class.tx_relax_pi1.php'])	{
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/relax/pi1/class.tx_relax_pi1.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/relax/pi1/class.tx_relax_pi1.php']);
 }
-
 ?>

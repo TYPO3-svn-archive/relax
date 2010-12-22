@@ -1,5 +1,10 @@
-2010-12-19 Ingo Pfennigstorf  <ingo.pfennigstorf@fh-brandenburg.de>
+2010-12-20 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
+	* Writing to CouchDB
+	* Defining default fields for a special purpose (May be changed via TypoScript)
+	* Cleaned up code
+
+2010-12-19 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
 	* Added PHP Couch Library
 
-2010-12-18 Ingo Pfennigstorf  <ingo.pfennigstorf@fh-brandenburg.de>
+2010-12-18 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
 	* Creating Extension

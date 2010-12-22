@@ -13,10 +13,5 @@ t3lib_extMgm::addPlugin(array(
 	t3lib_extMgm::extRelPath($_EXTKEY) . 'ext_icon.gif'
 ),'list_type');
 
-
-if (TYPO3_MODE == 'BE') {
-	$TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']['tx_relax_pi1_wizicon'] = t3lib_extMgm::extPath($_EXTKEY).'pi1/class.tx_relax_pi1_wizicon.php';
-}
-
 t3lib_extMgm::addStaticFile($_EXTKEY,'pi1/static/relax/', 'Relax');
 ?>
