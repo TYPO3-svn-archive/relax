@@ -73,6 +73,8 @@ class tx_relax_pi1 extends tslib_pibase {
 		$this->pi_loadLL();
 		$this->pi_USER_INT_obj = 1;
 
+		$GLOBALS["TSFE"]->additionalHeaderData[$this->extKey] = '<script type="text/javascript" src="/typo3conf/ext/relax/pub/js/relax.js"></script>';
+
 		//get default fields From TYPO3 Conf
 		$this->defaultFields = $this->getDefaultFields($conf['defaultFields']);
 
@@ -86,12 +88,16 @@ class tx_relax_pi1 extends tslib_pibase {
 		$this->couch = $this->initDB();
 
 		//check if we have some parameters
-		if (t3lib_div::_GP('tx-relax-pi1')) {
-			$gp = t3lib_div::_GP('tx-relax-pi1');
+		$gp = t3lib_div::_GP('tx-relax-pi1');
+
+		if ($gp['add']) {
 
 			$gp = $this->optimiereFelder($gp);
-
 			$content .= $this->addToCouch($gp);
+		}
+
+		if ($gp['docId'] && !$gp['add']) {
+			$content .= $this->showDocument($gp['docId']);
 		}
 
 		//Get all DBs and load into an Array
@@ -100,13 +106,16 @@ class tx_relax_pi1 extends tslib_pibase {
 		//Comparing defined DB with available
 		$this->compareAvailableSelected();
 
-
 		//Add the HTML Form to Content
 		$content .= $this->addForm();
 
 		$content .= $this->readCouch();
 
 		return $this->pi_wrapInBaseClass($content);
+	}
+
+	private function showDocument($docId) {
+
 	}
 
 	/**
@@ -119,12 +128,24 @@ class tx_relax_pi1 extends tslib_pibase {
 
 		$c = '<ul>';
 		foreach ($documents->rows as $document) {
-
-			$c .= '<li>' . $document->id . '</li>';
+			$c .= '<li id="' . $document->id . '" >' . $this->getDocLink($document->id) . '</li>';
 		}
 		$c .='</ul>';
 
 		return $c;
+	}
+
+	private function getDocLink($docId) {
+
+		$conf = array(
+			'parameter' => $GLOBALS['TSFE']->id . ' _self document',
+			'additionalParams' => '&tx-relax-pi1[docId]=' . $docId,
+//			'ATagParams' => 'class="document"'
+		);
+
+		$link = $this->cObj->typoLink($docId, $conf);
+
+		return $link;
 	}
 
 	/**
@@ -135,7 +156,6 @@ class tx_relax_pi1 extends tslib_pibase {
 	 */
 	private function optimiereFelder($gp) {
 		$data = array();
-
 		foreach ($gp as $key => $value) {
 
 			if (is_array($value)) {
@@ -143,7 +163,7 @@ class tx_relax_pi1 extends tslib_pibase {
 				$value = $value['fieldvalue'];
 			}
 
-			$data[$key] = $value;
+			$key != '' ? $data[$key] = $value : null;
 		}
 		return $data;
 	}
@@ -211,7 +231,7 @@ class tx_relax_pi1 extends tslib_pibase {
 	 */
 	private function addForm() {
 		$html .= '
-		
+		<div id="doctext" style="height:300px;display:none"> </div>
 		<form name="couchfields" action="' . $this->pi_getPageLink($GLOBALS['TSFE']->id) . '" method="post">';
 		foreach ($this->defaultFields as $field) {
 

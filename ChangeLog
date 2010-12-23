@@ -1,3 +1,9 @@
+2010-12-23 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
+	* Ajax Calls to read Documents
+	* #11642 jQuery has to be loaded in any way - no dependency at the moment
+	* #11643 Added JS Code
+	* Release of Version 0.1.0
+
 2010-12-22 Ingo Pfennigstorf  <i.pfennigstorf@gmail.com>
 	* Added possibility to configure the Databasename via TypoScript
 	* Using TYPO3 functions to instantiate Classes
