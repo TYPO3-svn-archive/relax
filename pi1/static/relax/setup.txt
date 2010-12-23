@@ -1,0 +1,27 @@
+plugin.tx_relax_pi1{
+	couch{
+		host = http://xxxxx.couchone.com
+		port = 5984
+		User = 
+		Pass =
+		dbName = 
+	}
+	defaultFields = titel, strasse, plz, ort, telefon
+	_CSS_DEFAULT_STYLE(
+		.tx-relax-pi1 label{
+		width: 162px;
+		float:left;
+		}
+		
+	.tx-relax-pi1 input{
+		margin-bottom: 4px;
+		width: 160px;
+		}
+		
+	.tx-relax-pi1 .addmore{
+		color: green;
+		font-size: 20px;
+		font-weight:bold;
+		}
+	)
+}
